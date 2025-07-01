@@ -3,9 +3,12 @@ import trimesh
 import matplotlib.pyplot as plt
 import numpy as np
 
-def viz_mesh(voxel_pred):
-    # Assume voxel_pred shape = [64, 64, 64]
-    verts, faces, normals, values = measure.marching_cubes(voxel_pred.numpy(), level=0.5)
+def viz_mesh(voxel_pred, voxel_size = 64):
+    # Assume voxel_pred shape = [32, 32, 32]
+    threshold = 1  # Typical threshold for occupancy
+    binary_voxel = (voxel_pred > threshold).detach().cpu().numpy().astype(np.uint8)
+    # print("Min:", binary_voxel.min(), "Max:", binary_voxel.max(), "Unique:", np.unique(binary_voxel))
+    verts, faces, normals, values = measure.marching_cubes(binary_voxel, level=1)
     mesh = trimesh.Trimesh(vertices=verts, faces=faces)
     mesh.show()
 

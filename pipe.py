@@ -1,11 +1,11 @@
 from voxel_to_latent import VoxelEncoder
 from latent_to_triplane import TriplaneDecoder
-# from obj_to_voxel import get_voxels
+from obj_to_voxel import save_voxels
 import torch
 import torch.nn.functional as F
 from triplane_to_voxel import sample_feature_from_planes, FeatureDecoderMLP
 import torch.optim as optim
-from viz import viz_voxel
+from viz import viz_voxel, viz_mesh
 
 encoder = VoxelEncoder(latent_dim=1024)
 triplane_gen = TriplaneDecoder(latent_dim=1024, out_channels=32)
@@ -24,10 +24,11 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience
 
 def main():
     print('Main function: VAE')
-    # get_voxels()
+    # save_voxels()
     voxel_gt = torch.load("./voxel/02691156/10155655850468db78d106ce0a280f87.pth", weights_only=False)
     voxel_gt = voxel_gt.float().clamp(0.0, 1.0)
-    # viz_voxel(voxel_gt.view(64, 64, 64)) # Visualize the voxel data
+    viz_voxel(voxel_gt.view(64, 64, 64)) # Visualize the voxel data
+    viz_mesh(voxel_gt.view(64, 64, 64))
     latent = encoder(voxel_gt) # Encode to latent [1, 1024]
     triplanes = triplane_gen(latent) # Decode to triplanes [1, 3, 32, 128, 128]
     # Sample 3D coordinates
@@ -42,6 +43,7 @@ def main():
     pred = decoder_mlp(feats).squeeze(-1)
     # Loss
     loss = F.binary_cross_entropy(pred, gt_values.squeeze())
+    # Visualize the mesh made from the predicted voxel
     # Backprop
     loss.backward()
     optimizer.step()
