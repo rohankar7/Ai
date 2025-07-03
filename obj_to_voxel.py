@@ -32,7 +32,7 @@ def create_voxels(path):
         voxel_tensor = torch.tensor(grid).unsqueeze(0).unsqueeze(0)  # [1, 1, D, H, W]
         torch.save(voxel_tensor, f"{config.voxel_dir}/{"_".join(path.split("/"))}.pth")
     except (IndexError, AttributeError, np._core._exceptions._ArrayMemoryError) as e:
-        print(path) # Missing two files from class: 03337140
+        # print(path) # Missing two files from class: 03337140
         return
 
-save_voxels()
+# save_voxels()
