@@ -14,8 +14,10 @@ class VoxelDataset(Dataset):
     def __len__(self): return len(self.voxel_paths)
     def __getitem__(self, index):
         file_path = self.voxel_paths[index]
-        voxel_data = torch.load(f"{config.voxel_dir}/{file_path}", weights_only=False)
-        assert voxel_data == (1,1,config.voxel_res, config.voxel_res, config.voxel_res), f"Unexpected shape: {voxel_data.shape}"
+        voxel_data = torch.load(f"{file_path}", weights_only=False)
+        print(voxel_data.shape)
+        # assert voxel_data == (1,1,config.voxel_res, config.voxel_res, config.voxel_res), f"Unexpected shape: {voxel_data.shape}"
+        assert voxel_data.shape == torch.Size([1, 64, 64, 64]), f"Unexpected shape: {voxel_data.shape}"
         return voxel_data
 def voxel_dataloader():
     voxel_paths = [os.path.join(config.voxel_dir, path) for path in os.listdir(config.voxel_dir) if path.endswith(".pt")]
@@ -24,5 +26,5 @@ def voxel_dataloader():
     test_size = len(dataset) - train_size
     train_set, test_set = random_split(dataset, [train_size, test_size])
     train_loader = DataLoader(train_set, batch_size=10, shuffle=True)
-    test_loader = DataLoader(test_set, batch_size=10)
+    test_loader = DataLoader(test_set, batch_size=10, shuffle=True)
     return train_loader, test_loader

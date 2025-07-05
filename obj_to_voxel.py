@@ -29,8 +29,8 @@ def create_voxels(path):
         grid = np.zeros((target_res, target_res, target_res), dtype=np.float32) # Pad or crop to fixed size
         min_shape = np.minimum(grid.shape, voxel_grid.shape)
         grid[:min_shape[0], :min_shape[1], :min_shape[2]] = voxel_grid[:min_shape[0], :min_shape[1], :min_shape[2]]
-        voxel_tensor = torch.tensor(grid).unsqueeze(0).unsqueeze(0)  # [1, 1, D, H, W]
-        torch.save(voxel_tensor, f"{config.voxel_dir}/{"_".join(path.split("/"))}.pth")
+        voxel_tensor = torch.tensor(grid).unsqueeze(0)  # [1, D, H, W]
+        torch.save(voxel_tensor, f"{config.voxel_dir}/{"_".join(path.split("/"))}.pt")
     except (IndexError, AttributeError, np._core._exceptions._ArrayMemoryError) as e:
         # print(path) # Missing two files from class: 03337140
         return

@@ -24,9 +24,9 @@ def train_test():
     # OR:
     # scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
     os.makedirs("./checkpoints", exist_ok=True) # Checkpoint directory
+    num_epochs = 100
     early_stopping_patience = num_epochs
     early_stopping_counter = 0
-    num_epochs = 100
     # Train
     for epoch in range(num_epochs):
         encoder.train(); triplane_decoder.train(); decoder_mlp.train()
