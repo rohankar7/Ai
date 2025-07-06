@@ -15,8 +15,6 @@ class VoxelDataset(Dataset):
     def __getitem__(self, index):
         file_path = self.voxel_paths[index]
         voxel_data = torch.load(f"{file_path}", weights_only=False)
-        print(voxel_data.shape)
-        # assert voxel_data == (1,1,config.voxel_res, config.voxel_res, config.voxel_res), f"Unexpected shape: {voxel_data.shape}"
         assert voxel_data.shape == torch.Size([1, 64, 64, 64]), f"Unexpected shape: {voxel_data.shape}"
         return voxel_data
 def voxel_dataloader():

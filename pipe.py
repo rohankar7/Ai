@@ -42,14 +42,13 @@ def train_test():
             gt_values = F.grid_sample(voxel_gt, coords.view(B, 1, N, 1, 3), align_corners=True).squeeze(-1) # Sample GT voxel values at coords
             gt_values = gt_values.clamp(0.0, 1.0)
             # Sample features from triplanes
-            features = sample_feature_from_planes(triplanes, coords).squeeze().permute(1, 0) 
-            pred = decoder_mlp(features).squeeze(-1) # Decode occupancy values        
+            features = sample_feature_from_planes(triplanes, coords).permute(0, 2, 1) # [B, N, C]
+            pred = decoder_mlp(features).squeeze(-1) # Decode occupancy values [B, N]
             loss = F.binary_cross_entropy(pred, gt_values.squeeze()) # Loss
             # Backprop
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            scheduler.step()
             total_loss += loss.item()
         avg_train_loss = total_loss / len(train_loader)
         print(f"🔥 Epoch {epoch+1}: Avg Train Loss = {avg_train_loss:.6f}")
@@ -68,8 +67,8 @@ def train_test():
                 coords = torch.rand(B, N, 3, device=device) * 2 - 1  # in [-1, 1]
                 gt_values = F.grid_sample(voxel_gt, coords.view(B, 1, N, 1, 3), align_corners=True).squeeze(-1) # Sample GT voxel values at coords
                 gt_values = gt_values.clamp(0.0, 1.0)
-                features = sample_feature_from_planes(triplanes, coords).squeeze().permute(1, 0) # Sample features from triplanes
-                pred = decoder_mlp(features).squeeze(-1) # Decode occupancy values        
+                features = sample_feature_from_planes(triplanes, coords).permute(0, 2, 1) # [B, N, C]
+                pred = decoder_mlp(features).squeeze(-1) # Decode occupancy values [B, N]      
                 loss = F.binary_cross_entropy(pred, gt_values.squeeze()) # Loss
                 test_loss += loss.item()
             avg_test_loss = test_loss / len(test_loader)
