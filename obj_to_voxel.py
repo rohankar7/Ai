@@ -5,15 +5,14 @@ import numpy as np
 from shapenetcore import get_random_models
 from tqdm import tqdm
 import config
-from viz import viz_voxel
+from viz import viz_voxel, viz_mesh
 
 target_res = config.voxel_res
 
 def save_voxels():
     os.makedirs(config.voxel_dir, exist_ok=True)
     for path in tqdm(sorted(get_random_models()), desc=f"Progress"):
-        if not os.path.isfile(f"{config.voxel_dir}/{"_".join(path.split("/"))}.pth"):
-            create_voxels(path)
+        if not os.path.isfile(f"{config.voxel_dir}/{"_".join(path.split("/"))}.pth"): create_voxels(path)
 
 def create_voxels(path):
     try:

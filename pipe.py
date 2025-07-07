@@ -21,7 +21,6 @@ def train_test():
     params = list(encoder.parameters()) + list(triplane_decoder.parameters()) + list(decoder_mlp.parameters())
     optimizer = optim.Adam(params, lr=1e-4, betas=(0.9, 0.999))
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=5, factor=0.5)
-    # OR:
     # scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
     os.makedirs("./checkpoints", exist_ok=True) # Checkpoint directory
     num_epochs = 100
@@ -83,16 +82,16 @@ def train_test():
                 "decoder_mlp": decoder_mlp.state_dict(),
                 "optimizer": optimizer.state_dict(),
                 "test_loss": best_test_loss
-                }, f"checkpoints/best_model_{epoch+1}.pth")
-                print("Saved best model")
+                }, f"checkpoints/best_model.pth")
+                print(f"Saved best model at {epoch+1}")
                 early_stopping_counter = 0
             else:
                 early_stopping_counter += 1
                 if early_stopping_counter > early_stopping_patience:
                     print("Early stopping triggered")
                     break
+        # print(torch.cuda.memory_summary(device=None, abbreviated=True))
         torch.cuda.empty_cache()
-        print(torch.cuda.memory_summary(device=None, abbreviated=True))
 
 def main():
     print('Main function: VAE')

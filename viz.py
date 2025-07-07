@@ -2,13 +2,14 @@ from skimage import measure
 import trimesh
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
 def viz_mesh(voxel_pred, voxel_size = 64):
     # Assume voxel_pred shape = [32, 32, 32]
-    threshold = 1  # Typical threshold for occupancy
-    binary_voxel = (voxel_pred > threshold).detach().cpu().numpy().astype(np.uint8)
+    threshold = 0  # Typical threshold for occupancy
+    binary_voxel = (voxel_pred > threshold).detach().cpu().numpy().astype(np.uint8).squeeze(0)
     # print("Min:", binary_voxel.min(), "Max:", binary_voxel.max(), "Unique:", np.unique(binary_voxel))
-    verts, faces, normals, values = measure.marching_cubes(binary_voxel, level=1)
+    verts, faces, normals, values = measure.marching_cubes(binary_voxel, level=threshold)
     mesh = trimesh.Trimesh(vertices=verts, faces=faces)
     mesh.show()
 
@@ -28,3 +29,4 @@ def viz_voxel(voxel_data, threshold=0):
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
     plt.show()
+# viz_mesh(torch.load("./voxels/02691156_5b86cf0b988987c9fca1f1143bb6bc17.pt", weights_only=False))
