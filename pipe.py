@@ -19,7 +19,7 @@ def train_test():
     decoder_mlp = FeatureDecoderMLP(in_dim=32).to(device)
     # Assume model includes: encoder, triplane_generator, mlp_decoder
     params = list(encoder.parameters()) + list(triplane_decoder.parameters()) + list(decoder_mlp.parameters())
-    optimizer = optim.Adam(params, lr=1e-4, betas=(0.9, 0.999))
+    optimizer = optim.Adam(params, lr=1e-5, betas=(0.9, 0.999), weight_decay=1e-5)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=5, factor=0.5)
     # scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
     os.makedirs("./checkpoints", exist_ok=True) # Checkpoint directory
@@ -36,13 +36,14 @@ def train_test():
             latent = encoder(voxel_gt) # Encode to latent [B, latent_dim=1024]
             triplanes = triplane_decoder(latent) # Decode to triplanes [B, 3, 32, 128, 128]
             B = voxel_gt.shape[0]
-            N = 32 ** 3 # Sample 3D coordinates
+            N = 16 ** 3 # Sample 3D coordinates
             coords = torch.rand(B, N, 3, device=device) * 2 - 1  # in [-1, 1]
             gt_values = F.grid_sample(voxel_gt, coords.view(B, 1, N, 1, 3), align_corners=True).squeeze(-1) # Sample GT voxel values at coords
             gt_values = gt_values.clamp(0.0, 1.0)
             # Sample features from triplanes
             features = sample_feature_from_planes(triplanes, coords).permute(0, 2, 1) # [B, N, C]
             pred = decoder_mlp(features).squeeze(-1) # Decode occupancy values [B, N]
+            # print(pred.min(), pred.max())
             loss = F.binary_cross_entropy(pred, gt_values.squeeze()) # Loss
             # Backprop
             optimizer.zero_grad()
@@ -62,7 +63,7 @@ def train_test():
                 latent = encoder(voxel_gt) # Encode to latent [B, latent_dim=1024]
                 triplanes = triplane_decoder(latent) # Decode to triplanes [B, 3, 32, 128, 128]
                 B = voxel_gt.shape[0]
-                N = 32 ** 3 # Sample 3D coordinates
+                N = 16 ** 3 # Sample 3D coordinates
                 coords = torch.rand(B, N, 3, device=device) * 2 - 1  # in [-1, 1]
                 gt_values = F.grid_sample(voxel_gt, coords.view(B, 1, N, 1, 3), align_corners=True).squeeze(-1) # Sample GT voxel values at coords
                 gt_values = gt_values.clamp(0.0, 1.0)

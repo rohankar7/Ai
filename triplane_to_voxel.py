@@ -22,8 +22,10 @@ class FeatureDecoderMLP(nn.Module):
         self.mlp = nn.Sequential(
             nn.Linear(in_dim, hidden_dim),
             nn.ReLU(),
+            nn.Dropout(p=0.2),
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
+            nn.Dropout(p=0.2),
             nn.Linear(hidden_dim, 1),
             nn.Sigmoid()
         )

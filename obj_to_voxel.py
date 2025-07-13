@@ -12,7 +12,7 @@ target_res = config.voxel_res
 def save_voxels():
     os.makedirs(config.voxel_dir, exist_ok=True)
     for path in tqdm(sorted(get_random_models()), desc=f"Progress"):
-        if not os.path.isfile(f"{config.voxel_dir}/{"_".join(path.split("/"))}.pth"): create_voxels(path)
+        if f"{"_".join(path.split("/"))}.pt" not in os.listdir(config.voxel_dir): create_voxels(path)
 
 def create_voxels(path):
     try:
@@ -30,8 +30,8 @@ def create_voxels(path):
         grid[:min_shape[0], :min_shape[1], :min_shape[2]] = voxel_grid[:min_shape[0], :min_shape[1], :min_shape[2]]
         voxel_tensor = torch.tensor(grid).unsqueeze(0)  # [1, D, H, W]
         torch.save(voxel_tensor, f"{config.voxel_dir}/{"_".join(path.split("/"))}.pt")
-    except (IndexError, AttributeError, np._core._exceptions._ArrayMemoryError) as e:
+    except (IndexError, AttributeError, MemoryError) as e:
         print(path) # Missing two files from class: 03337140
         return
 
-save_voxels()
+# save_voxels()
